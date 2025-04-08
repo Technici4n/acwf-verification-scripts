@@ -14,9 +14,9 @@ from aiida_common_workflows.plugins import load_workflow_entry_point
 from aiida_submission_controller import FromGroupSubmissionController
 
 DRY_RUN = False
-MAX_CONCURRENT = 24
-PLUGIN_NAME = 'quantum_espresso'
-CODE_LABEL = 'qe-6.8-pw@eiger-mc'
+MAX_CONCURRENT = 16
+PLUGIN_NAME = 'dftk'
+CODE_LABEL = 'DFTK@odonatum'
 
 
 class EosSubmissionController(FromGroupSubmissionController):
@@ -42,7 +42,7 @@ class EosSubmissionController(FromGroupSubmissionController):
         """
         structure = self.get_parent_node_from_extras(extras_values)
 
-        sub_process_cls = load_workflow_entry_point('relax', 'quantum_espresso')
+        sub_process_cls = load_workflow_entry_point('relax', 'dftk')
         sub_process_cls_name = get_entry_point_name_from_class(sub_process_cls).name
         generator = sub_process_cls.get_input_generator()
 
@@ -54,10 +54,11 @@ class EosSubmissionController(FromGroupSubmissionController):
                 'code': CODE_LABEL,
                 'options': {
                     'resources': {
-                        'num_machines': 1
+                        'num_machines': 1,
+                        'num_mpiprocs_per_machine': 1,
                     },
-                    'account': 'mr0',
-                    'max_wallclock_seconds': 3600
+                    # 'account': 'mr0',
+                    'max_wallclock_seconds': 36000, # 10 hours since we don't have proper queueing
                 }
             }
 
@@ -65,24 +66,27 @@ class EosSubmissionController(FromGroupSubmissionController):
             'structure': structure,
             'generator_inputs': {  # code-agnostic inputs for the relaxation
                 'engines': engines,
-                'protocol': 'verification-PBE-v1',
+                'protocol': 'refinement',
                 'relax_type': RelaxType.NONE,
-                'electronic_type': ElectronicType.METAL,
+                'electronic_type': ElectronicType.UNKNOWN, # METAL,
                 'spin_type': SpinType.NONE,
             },
             'sub_process_class': sub_process_cls_name,
-            'sub_process' : {  # optional code-dependent overrides
-                'base': {
-                    'pw': {
-                        'settings' : orm.Dict(dict= {
-                            'cmdline': ['-nk', '32'],
-                        })
-                    }
-                }
-            }
+            # 'sub_process' : {  # optional code-dependent overrides
+            #     'base': {
+            #         'pw': {
+            #             'settings' : orm.Dict(dict= {
+            #                 'cmdline': ['-nk', '32'],
+            #             })
+            #         }
+            #     }
+            # }
         }
 
-        return inputs, self._process_class
+        builder = self._process_class.get_builder()
+        builder._update(inputs)
+        return builder
+        #return inputs, self._process_class
 
 if __name__ == "__main__":
     try:
@@ -99,6 +103,8 @@ if __name__ == "__main__":
         code_label=CODE_LABEL,
         group_label=WORKFLOWS_GROUP_LABEL,
         max_concurrent=MAX_CONCURRENT)
+    # Create group!!
+    orm.Group.collection.get_or_create(controller.group_label)
     
     print('Already run    :', controller.num_already_run)
     print('Max concurrent :', controller.max_concurrent)

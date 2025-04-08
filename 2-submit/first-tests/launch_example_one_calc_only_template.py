@@ -1,13 +1,13 @@
 from aiida.plugins import DataFactory, WorkflowFactory
 from aiida import orm
-from aiida.engine import submit
+from aiida.engine import submit, run
 
 from aiida_common_workflows.common import ElectronicType, RelaxType, SpinType
 from aiida_common_workflows.plugins import get_entry_point_name_from_class
 from aiida_common_workflows.plugins import load_workflow_entry_point
 
-PLUGIN_NAME = 'quantum_espresso'
-CODE_LABEL = 'qe-6.8-pw@eiger-mc'
+PLUGIN_NAME = 'dftk'
+CODE_LABEL = 'DFTK@odonatum'
 SET_NAME = 'oxides-verification-PBE-v1'
 
 STRUCTURES_GROUP_LABEL = f'acwf-verification/{SET_NAME}/structures/{PLUGIN_NAME}'
@@ -20,10 +20,10 @@ query.append(Structure, tag='structure', project=['extras', '*'])
 query.append(orm.Group, tag='group', filters={'label': STRUCTURES_GROUP_LABEL}, with_node='structure')
 all_structures = {(res[0]['element'], res[0]['configuration']): res[1] for res in query.all()}
 
-structure = all_structures[('Si', 'X2O')]
+structure = all_structures[('Ti', 'XO2')]
 print(f'Structure PK: {structure.pk}')
 
-sub_process_cls = load_workflow_entry_point('relax', 'quantum_espresso')
+sub_process_cls = load_workflow_entry_point('relax', PLUGIN_NAME)
 sub_process_cls_name = get_entry_point_name_from_class(sub_process_cls).name
 generator = sub_process_cls.get_input_generator()
 
@@ -35,11 +35,13 @@ for engine in engine_types:
         'code': CODE_LABEL,
          'options': {
             'resources': {
-                'num_machines': 1
+                'num_machines': 1,
+                'num_mpiprocs_per_machine': 2,
             },
-            'account': 'mr0',
+            # 'account': 'mr0',
             # 'queue_name': 'debug',
-            'max_wallclock_seconds': 1700 # A bit less than 30 minutes (so we fit in the debug queue=partition)
+            # 'max_wallclock_seconds': 1700 # A bit less than 30 minutes (so we fit in the debug queue=partition)
+            'max_wallclock_seconds': 36000, # 10 hours since we don't have proper queueing
         }
     }
 
@@ -47,34 +49,35 @@ inputs = {
     'structure': structure,
     'generator_inputs': {  # code-agnostic inputs for the relaxation
         'engines': engines,
-        'protocol': 'verification-PBE-v1',
+        'protocol': 'refinement', # TODO: should be a verification protocol
         'relax_type': RelaxType.NONE,
-        'electronic_type': ElectronicType.METAL,
+        'electronic_type': ElectronicType.UNKNOWN, #METAL,
         'spin_type': SpinType.NONE,
     },
     'sub_process_class': sub_process_cls_name,
-    'sub_process' : {  # optional code-dependent overrides
-        'base': {
-            ## In order to make this work, you have perform the change discussed
-            ## at the bottom of the file in the eos.py file.
-            ## Otherwise the whole namespace is replaced.
-            'pw': {
-                'settings': orm.Dict(dict={
-                    'cmdline': ['-nk', '32'],
-                }), 
-                'parameters': orm.Dict(dict={
-                    'SYSTEM': {
-                        'ecutwfc': 200,
-                        'ecutrho': 2000
-                    }
-                })
-            }
-        }
-    }
+    # 'sub_process' : {  # optional code-dependent overrides
+    #     'base': {
+    #         ## In order to make this work, you have perform the change discussed
+    #         ## at the bottom of the file in the eos.py file.
+    #         ## Otherwise the whole namespace is replaced.
+    #         'pw': {
+    #             'settings': orm.Dict(dict={
+    #                 'cmdline': ['-nk', '32'],
+    #             }), 
+    #             'parameters': orm.Dict(dict={
+    #                 'SYSTEM': {
+    #                     'ecutwfc': 200,
+    #                     'ecutrho': 2000
+    #                 }
+    #             })
+    #         }
+    #     }
+    # }
 }
 
 cls = WorkflowFactory('common_workflows.eos')
 node = submit(cls, **inputs)
+# node = run(cls, **inputs)
 print(f"Submitted workflow with PK = {node.pk} for {structure.get_formula()}")
 
 
