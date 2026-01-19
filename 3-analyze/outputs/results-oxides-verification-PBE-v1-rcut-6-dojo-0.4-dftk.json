@@ -1,0 +1,12 @@
+{
+  "BM_fit_data": {},
+  "completely_off": [],
+  "eos_data": {},
+  "failed_wfs": [],
+  "missing_outputs": {},
+  "num_atoms_in_sim_cell": {},
+  "script_version": "0.0.4",
+  "set_name": "oxides-verification-PBE-v1-rcut-6-dojo-0.4",
+  "stress_data": {},
+  "uuid_mapping": {}
+}
