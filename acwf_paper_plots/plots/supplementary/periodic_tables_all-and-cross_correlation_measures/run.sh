@@ -2,4 +2,4 @@
 
 ../../common/generate_periodic_tables.py SI-all-tables
 
-./compare-measures.py
+# ./compare-measures.py

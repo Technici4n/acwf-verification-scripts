@@ -67,6 +67,21 @@
             "oxides": "results-oxides-verification-PBE-v1-wien2k-dk_0.06.json",
             "unaries": "results-unaries-verification-PBE-v1-wien2k-dk_0.06.json",
             "short_label": "WIEN2k"
+        },
+        "Quantum ESPRESSO@PW|PseudoDojo-v0.4":{
+            "oxides": "results-oxides-verification-PBE-v1-quantum_espresso-PseudoDojo-0.4-PBE-SR-standard-upf.json",
+            "unaries": "results-unaries-verification-PBE-v1-quantum_espresso-PseudoDojo-0.4-PBE-SR-standard-upf.json",
+            "short_label": "QE"
+        },
+        "DFTK@PW|PseudoDojo-v0.5":{
+            "oxides": "results-oxides-verification-PBE-v1-dftk-PseudoDojo-0.5-PBE-SR-standard-upf.json",
+            "unaries": "results-unaries-verification-PBE-v1-dftk-PseudoDojo-0.5-PBE-SR-standard-upf.json",
+            "short_label": "DFTK-0.5"
+        },
+        "DFTK@PW|PseudoDojo-v0.5.1-fix":{
+            "oxides": "results-oxides-verification-PBE-v1-dftk-PseudoDojo-0.5.1-fix-PBE-SR-standard-upf.json",
+            "unaries": "results-unaries-verification-PBE-v1-dftk-PseudoDojo-0.5.1-fix-PBE-SR-standard-upf.json",
+            "short_label": "DFTK-0.5.1-fix"
         }
     },
     "methods-supplementary": {
@@ -85,11 +100,6 @@
             "unaries": "results-unaries-verification-PBE-v1-castep-PseudoDojo-0.4-PBE-SR-standard-upf.json",
             "short_label": "CASTEP"
         },
-        "Quantum ESPRESSO@PW|PseudoDojo-v0.4":{
-            "oxides": "results-oxides-verification-PBE-v1-quantum_espresso-PseudoDojo-0.4-PBE-SR-standard-upf.json",
-            "unaries": "results-unaries-verification-PBE-v1-quantum_espresso-PseudoDojo-0.4-PBE-SR-standard-upf.json",
-            "short_label": "QE"
-        },
         "Quantum ESPRESSO@PW|PseudoDojo-v0.4-trim":{
             "oxides": "results-oxides-verification-PBE-v1-quantum_espresso-PseudoDojo-0.4-PBE-SR-standard-upf-trim.json",
             "unaries": "results-unaries-verification-PBE-v1-quantum_espresso-PseudoDojo-0.4-PBE-SR-standard-upf-trim.json",
@@ -103,12 +113,12 @@
         "DFTK@PW|PseudoDojo-v0.5":{
             "oxides": "results-oxides-verification-PBE-v1-dftk-PseudoDojo-0.5-PBE-SR-standard-upf.json",
             "unaries": "results-unaries-verification-PBE-v1-dftk-PseudoDojo-0.5-PBE-SR-standard-upf.json",
-            "short_label": "DFTK"
+            "short_label": "DFTK-0.5"
         },
         "DFTK@PW|PseudoDojo-v0.5.1-fix":{
             "oxides": "results-oxides-verification-PBE-v1-dftk-PseudoDojo-0.5.1-fix-PBE-SR-standard-upf.json",
             "unaries": "results-unaries-verification-PBE-v1-dftk-PseudoDojo-0.5.1-fix-PBE-SR-standard-upf.json",
-            "short_label": "DFTK"
+            "short_label": "DFTK-0.5.1-fix"
         },
         "SIRIUS/CP2K@PW|SSSP-prec-v1.2":{
             "oxides": "results-oxides-verification-PBE-v1-cp2k-sirius-SSSP-1.2-PBE-precision.json",

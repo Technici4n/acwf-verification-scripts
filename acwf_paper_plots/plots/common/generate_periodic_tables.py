@@ -45,12 +45,12 @@ PRINT_NON_EXCELLENT = False
 ## "Constants" that might need to be changed, depeding on what Figure is generated
 
 # Whether to use
-USE_AE_AVERAGE_AS_REFERENCE = True
+USE_AE_AVERAGE_AS_REFERENCE = False
 # The following line is ony used if USE_AE_AVERAGE_AS_REFERENCE is False
-REFERENCE_CODE_LABEL = "FLEUR@LAPW+LO"
+REFERENCE_CODE_LABEL = "ABINIT@PW|PseudoDojo-v0.5"
 SKIP_PLOT_FOR_QUANTITIES = ['delta_per_formula_unit', 'delta_per_formula_unit_over_b0']
 LABELS_KEY = 'methods-main'
-ONLY_CODES = None #["CASTEP@PW|C19MK2", "Quantum ESPRESSO@PW|SSSP-prec-v1.3"] #["ABINIT@PW|PseudoDojo-v0.5", "BigDFT@DW|HGH-K(Valence)"]
+ONLY_CODES = ["DFTK@PW|PseudoDojo-v0.5", "DFTK@PW|PseudoDojo-v0.5.1-fix"]
 
 CBAR_MAX_DICT = {}
 
@@ -86,11 +86,11 @@ if len(sys.argv) == 2:
 
     if sys.argv[1] == "SI-all-tables":
         # Section S14
-        USE_AE_AVERAGE_AS_REFERENCE = True
+        USE_AE_AVERAGE_AS_REFERENCE = False
         LABELS_KEY = 'methods-main'
-        ONLY_CODES = None
+        SET_NAMES = ['oxides', 'unaries']
         EXPORT_JSON=True
-        PRINT_LATEX_CODE=True
+        PRINT_LATEX_CODE=False
 
     if sys.argv[1] == "SI-29-vs-960-highlight":
         # Figure S39
@@ -577,7 +577,7 @@ def create_periodic_table(SET_NAME, QUANTITY, collect, list_confs, short_labels,
         p.toolbar.logo = None
         p.toolbar.tools = []
         p.toolbar_location = None
-        p.plot_width = width
+        p.width = width
         p.outline_line_color = None
         p.background_fill_color = None
         p.border_fill_color = None
@@ -658,7 +658,7 @@ def create_periodic_table(SET_NAME, QUANTITY, collect, list_confs, short_labels,
         p.toolbar.logo = None
         p.toolbar.tools = []
         p.toolbar_location = None
-        p.plot_width = width - width_cbar
+        p.width = width - width_cbar
         p.outline_line_color = None
         p.background_fill_color = None
         p.border_fill_color = None
@@ -702,8 +702,8 @@ def create_periodic_table(SET_NAME, QUANTITY, collect, list_confs, short_labels,
             )
 
     for color, view,is_bold in [
-        ("#333333", CDSView(source=source, filters=[BooleanFilter(elements["atomic number"] <= 96)]), False),
-        ("#333333", CDSView(source=source, filters=[BooleanFilter(elements["atomic number"] > 96)]), False),
+        ("#333333", CDSView(filter=BooleanFilter(elements["atomic number"] <= 96)), False),
+        ("#333333", CDSView(filter=BooleanFilter(elements["atomic number"] > 96)), False),
         ## Do not use the following 4 lines, looks ugly
         ## (it was an attempt of making a white border
         ## around the black text)
@@ -997,30 +997,30 @@ if __name__ == "__main__":
                 master_data_dict[SET_NAME]["calculated_quantities"][QUANTITY][plugin] = collect
 
 
-    output_quantity_dict = {}
-    for QUANTITY in QUANTITIES:
-        output_quantity_dict[QUANTITY] = {}
-        for SET_NAME in SET_NAMES:
-            output_quantity_dict[QUANTITY][SET_NAME] = {}
-            intermediate_dict = master_data_dict[SET_NAME]['calculated_quantities'][QUANTITY]['WIEN2k@(L)APW+lo+LO']
-            for configuration, intermediate_data in intermediate_dict.items():
-                output_quantity_dict[QUANTITY][SET_NAME].update(
-                    dict(zip(
-                        [f"{k}-{configuration}" for k in intermediate_data['elements']],
-                        intermediate_data['values']
-                    ))
-                )
+    # output_quantity_dict = {}
+    # for QUANTITY in QUANTITIES:
+    #     output_quantity_dict[QUANTITY] = {}
+    #     for SET_NAME in SET_NAMES:
+    #         output_quantity_dict[QUANTITY][SET_NAME] = {}
+    #         intermediate_dict = master_data_dict[SET_NAME]['calculated_quantities'][QUANTITY]['WIEN2k@(L)APW+lo+LO']
+    #         for configuration, intermediate_data in intermediate_dict.items():
+    #             output_quantity_dict[QUANTITY][SET_NAME].update(
+    #                 dict(zip(
+    #                     [f"{k}-{configuration}" for k in intermediate_data['elements']],
+    #                     intermediate_data['values']
+    #                 ))
+    #             )
 
     # print(output_quantity_dict['nu']['oxides'])
     ## {'Ac-X2O3': 0.009737865122023147, 'Ag-X2O3': 0.04770355931373145, ..., 'Hg-X2O5': 0.0754615851710017, ...}
-    print(output_quantity_dict['nu']['unaries'])
+    # print(output_quantity_dict['nu']['unaries'])
     # {'Ac-X/Diamond': 0.04186021792027553, 'Ag-X/Diamond': 0.037339062070366094, ..., 'As-X/BCC': 0.02878620698279048, ...}
 
-    if PRINT_JSON:
-        fname = 'all-measure-quantities-ae.json'
-        with open(fname, 'w') as fhandle:
-            json.dump(output_quantity_dict, fhandle, indent=2)
-        print(f"{fname} written.")
+    # if PRINT_JSON:
+    #     fname = 'all-measure-quantities-ae.json'
+    #     with open(fname, 'w') as fhandle:
+    #         json.dump(output_quantity_dict, fhandle, indent=2)
+    #     print(f"{fname} written.")
 
     measures_max_and_avg = find_code_measures_max_and_avg(master_data_dict)
 
