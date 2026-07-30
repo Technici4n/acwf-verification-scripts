@@ -37,7 +37,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     STRUCTURES_FULL_GROUP_LABEL = f'acwf-verification/{SET_NAME}/structures'
-    STRUCTURES_GROUP_LABEL = f'acwf-verification/{SET_NAME}/structures/{PLUGIN_NAME}'
+    STRUCTURES_GROUP_LABEL = f'acwf-verification/{SET_NAME[:-3] + "-v2"}/structures/{PLUGIN_NAME}'
 
     group = orm.Group.objects.get(label=STRUCTURES_FULL_GROUP_LABEL)
     subgroup, _ = orm.Group.objects.get_or_create(label=STRUCTURES_GROUP_LABEL)
@@ -69,6 +69,11 @@ if __name__ == "__main__":
         valid_elements = [a for a in atomic_numbers.keys() if atomic_numbers[a] <= 83]
         for elements in ['Dy', 'Ce', 'Er', 'Eu', 'Gd', 'Ho', 'La', 'Lu', 'Nd', 'Pm', 'Pr', 'Sm', 'Tb', 'Tc', 'Tm', 'Yb' ]:
             valid_elements.remove(elements)
+    elif PLUGIN_NAME == 'dftk':
+        query = orm.QueryBuilder()
+        query.append(orm.Node, project="attributes.element", tag='pseudo')
+        query.append(orm.Group, filters={'label': 'PseudoDojo/0.5/PBE/SR/standard/upf'}, with_node='pseudo')
+        valid_elements = query.all(flat=True)
     else:
         raise ValueError(f"Unknown plugin name `{PLUGIN_NAME}`!")
     #####################################################################################
